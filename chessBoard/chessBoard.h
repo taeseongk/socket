@@ -7,6 +7,7 @@
 #include <cmath>
 #include <queue>
 #include "../chessPiece.h"
+#include <string>
 
 class chessBoard {
     public:
@@ -26,7 +27,8 @@ class chessBoard {
         void castleQueen(int color);
         void castleKing(int color);
         void promotion(int color, char p, int x, int y);
-        bool makeMove(int color);
+        std::string makeMove(int color);
+        std::string updateBoard(int color, std::string move);
         bool movePiece(int color, int prevX, int prevY, int x, int y, chessPiece &p, bool temp1, bool temp2, bool temp3);
         void printBoard(int color) const;
 

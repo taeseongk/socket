@@ -1,4 +1,7 @@
 #include "server.h"
+#include <chrono>
+#include <thread>
+#include "../chessBoard/chessBoard.h"
 
 void server::startServer() {
     int obj_server, sock, reader;
@@ -6,8 +9,6 @@ void server::startServer() {
     int opted = 1;
     int address_length = sizeof(address);
     char buffer[1024] = {0};
-    char *message = "Server: Received the message !";
-
     if ((obj_server = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("Opening of Socket Failed !");
         exit(EXIT_FAILURE);
@@ -25,7 +26,7 @@ void server::startServer() {
     
     if (bind(obj_server, (struct sockaddr *)&address,
              sizeof(address)) < 0) {
-        perror("Binding of socket failed !");
+        perror("Server unavailable");
         exit(EXIT_FAILURE);
     }
 
@@ -40,16 +41,32 @@ void server::startServer() {
         exit(EXIT_FAILURE);
     }
     printf("Player joined!\n");
+    printf("Starting game!\n");
+    std::chrono::seconds dura(1);
+    std::this_thread::sleep_for(dura);
+    chessBoard board;
 
     while (true) {      
-        reader = read(sock, buffer, 1024);
-        printf("%s\n", buffer);
-        memset(buffer, 0, 1024);
-        send(sock, message, strlen(message), 0);
-    }
-}
+        board.printBoard(0);
+        std::string move = board.makeMove(0);
 
-int main() {
-    server server;
-    server.startServer();
+        char* message = new char [move.length()];
+        strcpy(message, move.c_str());
+        send(sock, message, strlen(message), 0);
+        if (!strcmp(message, "Over") || !strcmp(message, "Checkmate")) {
+            return;
+        }
+        else if (!strcmp(message, "Draw")) {
+            memset(buffer, 0, 1024);
+            reader = read(sock, buffer, 1024);
+            if (!strcmp(buffer, "Over")) {
+                std::cout << "Game Over: Draw!" << std::endl;
+                return;
+            }
+            else if(!strcmp(buffer, "Continue")) {
+                std::cout << "Game Continues!" << std::endl;
+                continue;
+            }
+        }
+    }
 }

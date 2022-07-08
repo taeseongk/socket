@@ -25,9 +25,12 @@ int main() {
 	}
 	else {
 		client client;
-		client.startClient();
+        if (client.startClient() == 0) {
+            return 0;
+        }
 	}
-
+    
+    /*
 	chessBoard board;
 	std::chrono::seconds dura(1);
 	while (true) {
@@ -45,4 +48,5 @@ int main() {
 		std::this_thread::sleep_for(dura);
 	}
 	return 0;
+    */
 }
